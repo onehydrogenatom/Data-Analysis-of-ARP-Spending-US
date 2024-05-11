@@ -1,0 +1,104 @@
+# Libraries
+library(dplyr)
+
+# Load dataset
+data <- read.csv("C:\\Users\\bendw\\Downloads\\April-2023-Reporting-Data-through-March-31-2023(1).csv")
+
+# Check the size of the file
+file.info("C:\\Users\\bendw\\Downloads\\April-2023-Reporting-Data-through-March-31-2023(1).csv")$size
+
+# Print the class of each column in the dataset
+print(sapply(data, class))
+
+# Filter data for Arkansas out of the dataset
+states_to_filter <- c("Arkansas")
+
+# Filter the dataset based on the values in the column `State.Territory` that match the values in `states_to_filter`
+filtered_data <- data[data$State.Territory %in% states_to_filter, ]
+
+# Use the `filter()` function from the dplyr package to filter the `data` data frame
+filtered_pay <- filtered_data %>%
+  filter(
+    grepl("benefits|payroll|bonus|salary|premium pay|pension|pensions|retirement", Project.Description, ignore.case = TRUE) &
+      Expenditure.Category.Group == "6-Revenue Replacement"
+  )
+
+# Filter projects to only APPP communities 
+filtered_APPP <- filtered_data %>%
+  filter(
+    grepl("Columbia County|Desha County|Drew County|Jefferson County|Lincoln County|Nevada County|Ouachita County|Phillips County|Pulaski County|Union County
+", Recipient.Name, ignore.case = TRUE)
+  )
+# Filter projects to only APPP communities 
+filtered_APPP_WATER <- filtered_APPP %>%
+  filter(
+    grepl("water|drinking water|flooding|flood|storm water|storm drainage|
+", Project.Description, ignore.case = TRUE)
+  )
+
+# Filter projects to only APPP communities 
+filtered_water_all_ar <- filtered_data %>%
+  filter(
+    grepl("water|drinking water|flooding|flood|storm water|storm drainage|
+", Project.Description, ignore.case = TRUE)
+  )
+
+
+# Convert the columns to numeric by removing dollar signs and commas
+filtered_data$Total.Cumulative.Obligations <- as.numeric(gsub('[$,]','',filtered_data$Total.Cumulative.Obligations))
+filtered_data$Total.Cumulative.Expenditures <- as.numeric(gsub('[$,]','',filtered_data$Total.Cumulative.Expenditures))
+filtered_data$Adopted.Budget <- as.numeric(gsub('[$,]','',filtered_data$Adopted.Budget))
+filtered_pay$Total.Cumulative.Obligations <- as.numeric(gsub('[$,]','',filtered_pay$Total.Cumulative.Obligations))
+filtered_pay$Total.Cumulative.Expenditures <- as.numeric(gsub('[$,]','',filtered_pay$Total.Cumulative.Expenditures))
+filtered_pay$Adopted.Budget <- as.numeric(gsub('[$,]','',filtered_pay$Adopted.Budget))
+filtered_APPP$Total.Cumulative.Obligations <- as.numeric(gsub('[$,]','',filtered_APPP$Total.Cumulative.Obligations))
+filtered_APPP$Total.Cumulative.Expenditures <- as.numeric(gsub('[$,]','',filtered_APPP$Total.Cumulative.Expenditures))
+filtered_APPP$Adopted.Budget <- as.numeric(gsub('[$,]','',filtered_APPP$Adopted.Budget))
+
+# Clean NA values
+filtered_data$Total.Cumulative.Obligations[is.na(filtered_data$Total.Cumulative.Obligations)] <- 0
+filtered_data$Total.Cumulative.Expenditures[is.na(filtered_data$Total.Cumulative.Expenditures)] <- 0
+filtered_data$Adopted.Budget[is.na(filtered_data$Adopted.Budget)] <- 0
+filtered_pay$Total.Cumulative.Obligations[is.na(filtered_pay$Total.Cumulative.Obligations)] <- 0
+filtered_pay$Total.Cumulative.Expenditures[is.na(filtered_pay$Total.Cumulative.Expenditures)] <- 0
+filtered_pay$Adopted.Budget[is.na(filtered_pay$Adopted.Budget)] <- 0
+filtered_APPP$Total.Cumulative.Obligations[is.na(filtered_APPP$Total.Cumulative.Obligations)] <- 0
+filtered_APPP$Total.Cumulative.Expenditures[is.na(filtered_APPP$Total.Cumulative.Expenditures)] <- 0
+filtered_APPP$Adopted.Budget[is.na(filtered_APPP$Adopted.Budget)] <- 0
+
+# Check for NA values in columns before calculating numeric totals
+sum(is.na(filtered_data$Total.Cumulative.Obligations))
+
+# Calculate the mean of the total amount allocated so far in Arkansas
+mean(filtered_data$Total.Cumulative.Obligations, na.rm = TRUE)
+
+# Calculate the mean of the total amount spent so far in Arkansas
+mean(filtered_data$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+# Median of Arkansas Expenditures
+median(filtered_data$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+# Sum of total salaries in Arkansas
+sum(filtered_pay$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+# Sum of total expenditures in APPP communities 
+sum(filtered_APPP$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+# Sum of total expenditures in APPP communities 
+sum(filtered_APPP$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+# Percentage of projects by category
+category_proportions <- prop.table(table(filtered_data$Expenditure.Category.Group)) * 100
+print(category_proportions)
+
+# Percentage of projects by category for filtered_APPP
+category_proportions_APPP <- prop.table(table(filtered_APPP$Expenditure.Category.Group)) * 100
+print(category_proportions_APPP)# Sum of total expenditures in APPP communities 
+sum(filtered_APPP$Total.Cumulative.Expenditures, na.rm = TRUE)
+
+
+
+# Sum of Arkansas ARPA Funds Put Towards Salaries/Benefits
+sum(filtered_pay$Total.Cumulative.Expenditures)
+
+
